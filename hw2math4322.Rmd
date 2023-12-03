@@ -1,0 +1,357 @@
+---
+title: "HW2-MATH4322"
+author: "anthonycastillo-ID:1670011"
+date: "2022-09-14"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Question 1a:\
+$\hat{sales} = 2.938889 + 0.045765* TV + 0.0188530* radio -0.001037* newspaper + \epsilon$\
+Question 1b:\
+We will reject the null hypothesis for sales,TV and radio since the p-value is less than .05 and that means that there is significant evidence. The newspaper failed to reject the null hypothesis since the p-value is greater than .05\>.86 and no significant evidence for the it.\
+Question 1c:\
+The newspaper predictor is not significant in predicating sales.\
+
+Question 2a:\
+```{r}
+TVRadioNewspaper.AIC <- 2*(3+1)+200*log(556.8/200)
+TVRadio.AIC <- 2*(2+1)+200*log(556.9/200)
+TV.AIC <- 2*(1+1)+200*log(2102.5/200)
+TVRadioNewspaper.AIC
+TVRadio.AIC
+TV.AIC
+```
+Question 2b:\
+```{r}
+TVRadioNewspaper.CP <- (556.8/2.8)+2*(3+1)-200
+TVRadio.CP <- (556.9/2.8)+2*(2+1)-200
+TV.CP <- (2102.5/2.8)+2*(1+1)-200
+TVRadioNewspaper.CP
+TVRadio.CP
+TV.CP
+```
+
+Question 2c:\
+```{r}
+TVRadioNewspaper.AdjR2 <- 1-((556.8/196)/(5417.1/199))
+TVRadio.AdjR2 <- 1-((556.9/197)/(5417.1/199))
+TV.AdjR2 <- 1-((2102.5/198)/(5417.1/199))
+TVRadioNewspaper.AdjR2
+TVRadio.AdjR2
+TV.AdjR2
+```
+
+
+Question 2d:\
+```{r}
+TVRadioNewspaper.RSE <- sqrt(556.8/(200-3-1))
+TVRadio.RSE <- sqrt(556.9/(200-2-1))
+TV.RSE <- sqrt(2102.5/(200-1-1))
+TVRadioNewspaper.RSE
+TVRadio.RSE
+TV.RSE
+```
+
+
+Question 2e:\
+The second model best fits with only TV and Radio as predictors
+
+
+Question 3a:\
+$\hat{y} = 50 + 20* GPA + 0.07* IQ + 35* Gender + 0.01* GPA x IQ - 10* GPA x Gender$\
+if $X_{3}$ = 1 then female and if male then $X_{3}$ = 0 so,\
+male : $\hat{y} = 50 + 20* GPA + 0.07* IQ + 0.01* GPA x IQ$\
+female : $\hat{y} = 85 + 10* GPA + 0.07* IQ + 0.01* GPA x IQ$\
+iii.is correct\
+since the GPA is higher in males than female that will make the males earn more on average than females\
+
+Question 3b:\
+IQ: 110 GPA:4.0\
+
+```{r}
+fem = (85 + (10*4.0) + (0.07*110) + (0.01*4.0*110))
+fem
+```
+
+\
+Question 3c:\
+FALSE. can not tell if the predictors are significant without doing null hypothesis test and looking at the p-value\
+\
+Question 4a:\
+TRUE\
+Question 4b:\
+TRUE\
+Question 4c:\
+FALSE\
+Question 4d:\
+FALSE\
+Question 4e:\
+FALSE\
+
+Question 5a:\
+
+```{r}
+library(ISLR2)
+lm.sum <- summary(lm(mpg~horsepower, data = Auto))
+lm.sum
+```
+
+i.  p-value is less than .05 meaning there is relationship\
+ii. has 60% variability somewhat strong relationship\
+iii. has a negative relationship\
+iv. \
+
+```{r}
+auto.lm = lm(mpg~horsepower, data = Auto)
+predict(auto.lm,data.frame(horsepower=98), interval = "c")
+predict(auto.lm,data.frame(horsepower=98), interval = "p")
+```
+
+The predication interval has a bigger range compared to the confidence interval\
+\
+Question 5b:\
+
+```{r}
+plot(Auto$horsepower,Auto$mpg)
+abline(auto.lm)
+```
+
+\
+Question 5c:\
+
+```{r}
+par(mfrow = c(2,2))
+plot(auto.lm)
+```
+
+Question 6a:\
+
+```{r}
+pairs(Auto)
+```
+
+\
+Question 6b:
+
+```{r}
+#colnames(Auto)
+aa <- unlist(lapply(Auto, is.numeric))
+data_aa <- Auto[ ,aa]
+cor(data_aa)
+```
+
+\
+Question 6c:
+
+```{r}
+mpg.fit <- lm(mpg~ cylinders+displacement+horsepower+weight+acceleration+year+origin, data = Auto)
+summary(mpg.fit)
+```
+
+\
+i. The p-value is less than 0.05 for mpg,displacement,weight,year, and origin meaning there is a relationship between them with the mpg predictor. The other variable are greater than .05 meaning that relationship is not that significant.\
+
+ii. displacement, weight, year and origin\
+
+iii. Their is a strong relationship with the mpg variable
+
+Question 6d:\
+
+```{r}
+par(mfrow=c(2,2))
+sigAuto.lm <- lm(mpg~ displacement+weight+year+origin, data = Auto)
+plot(sigAuto.lm)
+```
+
+\
+Question 6e:\
+```{r}
+aa.lm <- lm(mpg~ displacement*weight:year:origin, data = Auto)
+summary(aa.lm)
+```
+only displacement predictor is significant\
+the rest of the predictor are not significant\
+Question 6f:\
+```{r}
+logauto.lm <- lm(mpg~ log(displacement+weight+year+origin)^2, data = Auto)
+summary(logauto.lm)
+```
+the log predictor is significant since p-value is less than 0.05\
+
+Question 7a:\
+
+```{r}
+#colnames(Boston)
+summary(lm(crim~zn, data = Boston))
+summary(lm(crim~indus, data = Boston))
+summary(lm(crim~chas, data = Boston))
+summary(lm(crim~nox, data = Boston))
+summary(lm(crim~rm, data = Boston))
+summary(lm(crim~age, data = Boston))
+summary(lm(crim~dis, data = Boston))
+summary(lm(crim~rad, data = Boston))
+summary(lm(crim~tax, data = Boston))
+summary(lm(crim~ptratio, data = Boston))
+summary(lm(crim~lstat, data = Boston))
+summary(lm(crim~medv, data = Boston))
+```
+
+All of the predictors except chas have a p-value less than 0.05 meaning that all those predictors are significant\
+Question 7b:\
+
+```{r}
+#colnames(Boston)
+crim.lm <- lm(crim~ ., data = Boston)
+summary(crim.lm)
+```
+
+can reject null hypothesis for zn,dis,rad, and medv\
+Question 7c:\
+The multiple regression model has only 4 predictors that are significant compared to the simple linear regression model which has all predictors except "chas" that are significant.\
+
+```{r}
+unireg <- c(coefficients(lm(crim~zn, data = Boston))[2],
+             coefficients(lm(crim~indus, data = Boston))[2],
+             coefficients(lm(crim~chas, data = Boston))[2],
+             coefficients(lm(crim~nox, data = Boston))[2],
+             coefficients(lm(crim~rm, data = Boston))[2],
+             coefficients(lm(crim~age, data = Boston))[2],
+             coefficients(lm(crim~dis, data = Boston))[2],
+             coefficients(lm(crim~rad, data = Boston))[2],
+             coefficients(lm(crim~tax, data = Boston))[2],
+             coefficients(lm(crim~ptratio, data = Boston))[2],
+             coefficients(lm(crim~lstat, data = Boston))[2],
+             coefficients(lm(crim~medv, data = Boston))[2]
+             )
+mult.lm <- (coefficients(crim.lm))[-1]
+plot(unireg,mult.lm)
+#coefficients(lm(crim~medv, data = Boston))
+```
+
+Question 7d:\
+
+```{r}
+summary(lm(crim~poly(zn,3), data = Boston))
+summary(lm(crim~poly(indus,3), data = Boston))
+#summary(lm(crim~poly(chas,3), data = Boston))
+summary(lm(crim~poly(nox,3), data = Boston))
+summary(lm(crim~poly(rm,3), data = Boston))
+summary(lm(crim~poly(age,3), data = Boston))
+summary(lm(crim~poly(dis,3), data = Boston))
+summary(lm(crim~poly(rad,3), data = Boston))
+summary(lm(crim~poly(tax,3), data = Boston))
+summary(lm(crim~poly(ptratio,3), data = Boston))
+summary(lm(crim~poly(lstat,3), data = Boston))
+summary(lm(crim~poly(medv,3), data = Boston))
+
+```
+
+zn,rm,rad,tax,and lstat are not significant and do not fit the model\
+indus,nox,age,dis,ptratio, and medv are significant and fit the model\
+
+Question 8a:\
+
+```{r}
+set.seed(1)
+x1 = runif(100)
+x2 = .5* x1+rnorm(100)/10
+y=2 + 2* x1 +0.3* x2 + rnorm(100)
+```
+
+$\hat{y} = 2 + 2*X_{1}+0.3*X_{2}+ \epsilon$\
+coefficients are 2, 2, 0.3\
+Question 8b:\
+```{r}
+cor(x1,x2)
+plot(x1,x2)
+```
+\
+Question 8c:\
+```{r}
+col.lm <- lm(y~x1+x2)
+summary(col.lm)
+```
+b0 = 2.1305 b1 = 1.4396 b2 = 1.009\
+We can reject both null hypothesis\
+Question 8d:\
+```{r}
+x1.lm <-lm(y~x1)
+summary(x1.lm)
+```
+has adj r^2 of 19% variability\
+reject null hypothesis p-value is less than 0.05\
+Question 8e:\
+```{r}
+x2.lm<-lm(y~x2)
+summary(x2.lm)
+```
+has adj r^2 of 17% variability\
+reject null hypothesis p-value is less than 0.05\
+Question 8f:\
+Yes there is a contradiction in multiple regression predictors are not significant and in the simple linear regression both predictor are shown as significant.\
+Question 8g:\
+```{r}
+x1=c(x1,0.1)
+x2=c(x2,0.8)
+y=c(y,6)
+
+new.lm <- lm(y~x1+x2)
+newx1.lm <- lm(y~x1)
+newx2.lm <- lm(y~x2)
+summary(new.lm)
+summary(newx1.lm)
+summary(newx2.lm)
+```
+in the multiple regression model x2 is now significant while x1 is now insignificant
+Question 9a:\
+
+```{r}
+set.seed(1)
+n=100
+X = rnorm(n)
+error = rnorm(n)
+```
+
+Question 9b:\
+
+```{r}
+b0=66;b1=.3;b2=.03;b3=-3
+Y=b0+b1*X+b2*X^2+b3*X^3+error
+```
+
+Question 9c:\
+
+```{r}
+library(leaps)
+df <- data.frame(Y,X)
+best.fit <- regsubsets(Y~poly(X,10), data = df)
+fit.sum<-summary(best.fit)
+fit.sum
+stat<- data.frame(
+  Adj.R2 = which.max(fit.sum$adjr2),
+  CP = which.min(fit.sum$cp),
+  BIC = which.min(fit.sum$bic)
+)
+stat
+par(mfrow=c(2,2))
+plot(fit.sum$adjr2, ylab="Adj R2")
+abline(fit.sum)
+plot(fit.sum$cp,ylab="CP")
+plot(fit.sum$bic,ylab="BIC")
+
+rstat = cbind(fit.sum$adjr2,fit.sum$cp,fit.sum$bic)
+colnames(rstat) = c("adjr2","CP","BIC")
+rstat
+```
+\
+The best model is only with the first predictor X\
+Question 9d:
+
+```{r}
+step(lm(Y~poly(X,10)),direction  = "forward")
+step(lm(Y~poly(X,10)),direction  = "backward")
+```

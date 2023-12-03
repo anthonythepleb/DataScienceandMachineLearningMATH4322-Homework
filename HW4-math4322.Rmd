@@ -1,0 +1,219 @@
+---
+title: "HW4-MATH4322"
+author: "Anthony Castillo-ID:1670011"
+date: "2022-10-20"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Question 1 (a):\
+1. data is randomly divided into K subsets\
+2. first fold is treated as validation set\
+3. method is fit on the remaining k-1 folds\
+4. MSE is computed on the observations in the held out fold\
+5. then is repeated k times\
+Question 1 (b):\
+i. validation set approach\
+The disadvantage of validation set approach is that it is high variability test error rate depending on data split and if we use less data for training data it will result in worst performance and overestimate the MSE\
+advantages the validation set has over k-fold is that validation is easier to implement compared to k-fold\
+ii.LOOCV\
+LOOCV is much more computationally intensive than k fold and there is less bias in the test error estimate compared to k fold method\
+
+Question 2:\
+Can use the bootstrap method to estimate standard deviation. The implementation for bootstrap is first get sample from a population with sample size n. We then create bootstrap samples which draws samples from original data with replacement and replicate B times, each re-sampled sample is then the bootstrap sample. We can evaluate standard deviation from each bootstrap sample\
+
+Question 3 (a):\
+
+```{r}
+set.seed(1)
+x <- rnorm(100)
+y=x-2*x^2+ rnorm(100)
+```
+$y = x-2x^2+\epsilon$\
+n = 100 and p = 2\
+
+Question 3 (b):\
+
+```{r}
+plot(x,y)
+```
+
+The graph has a non-linear relationship\
+Question 3 (c):\
+```{r}
+library(boot)
+set.seed(1)
+dat <- data.frame(x,y)
+cv.error <- rep(0,4)
+for(i in 1:4){
+  dat.glm <- glm(y~poly(x,i),data = dat)
+  cv.error[i] = cv.glm(dat,dat.glm)$delta[1]
+  print(cv.error[i])
+}
+```
+Question 3 (d):\
+```{r}
+set.seed(100)
+cv.error.alt <- rep(0,4)
+for(i in 1:4){
+  dat.glm.alt <- glm(y~poly(x,i),data = dat)
+  cv.error.alt[i] = cv.glm(dat,dat.glm.alt)$delta[1]
+  print(cv.error.alt[i])
+}
+```
+The results are the same with different seeds\
+LOOCV yields the same result since it uses the whole data set at each step\
+Question 3 (e):\
+The second degree model had the smallest error
+Yes that was expected since it resembles original y from the data set\
+Question 3 (f):\
+```{r}
+summary(dat.glm)
+```
+degree 1 and 2 show significance so agrees with cross-validation error with the second degree being the best result\
+Question 4 (a):\
+```{r}
+library(ISLR)
+set.seed(1)
+def.glm <- glm(default~balance+income,
+               data = Default,
+               family = "binomial")
+summary(def.glm)
+```
+Question 4 (b):\
+```{r}
+set.seed(1)
+n <- nrow(Default)
+Train <- sample(1:n,n*.75)
+def.train <- Default[Train,]
+def.test <- Default[-Train,]
+multi.glm <- glm(default~balance+income, data = def.train, family = "binomial")
+glm.predict <- predict(multi.glm, newdata = def.test)
+greater5 <- ifelse(glm.predict > 0.5,"Yes","No")
+mean(greater5 != def.test$default)
+```
+Question 4 (c):\
+```{r}
+#first test
+set.seed(1)
+n <- nrow(Default)
+Train <- sample(1:n,n*.80)
+def.train <- Default[Train,]
+def.test <- Default[-Train,]
+multi.glm <- glm(default~balance+income, data = def.train, family = "binomial")
+glm.predict <- predict(multi.glm, newdata = def.test)
+greater5 <- ifelse(glm.predict > 0.5,"Yes","No")
+mean(greater5 != def.test$default)
+
+#second test
+set.seed(1)
+n <- nrow(Default)
+Train <- sample(1:n,n*.30)
+def.train <- Default[Train,]
+def.test <- Default[-Train,]
+multi.glm <- glm(default~balance+income, data = def.train, family = "binomial")
+glm.predict <- predict(multi.glm, newdata = def.test)
+greater5 <- ifelse(glm.predict > 0.5,"Yes","No")
+mean(greater5 != def.test$default)
+
+#third test
+set.seed(1)
+n <- nrow(Default)
+Train <- sample(1:n,n*.5)
+def.train <- Default[Train,]
+def.test <- Default[-Train,]
+multi.glm <- glm(default~balance+income, data = def.train, family = "binomial")
+glm.predict <- predict(multi.glm, newdata = def.test)
+greater5 <- ifelse(glm.predict > 0.5,"Yes","No")
+mean(greater5 != def.test$default)
+```
+The test error rate all varies depending on the data split\
+Question 5 (a):\
+```{r}
+set.seed(1)
+def.glm <- glm(default~balance+income,
+               data = Default,
+               family = "binomial")
+summary(def.glm)
+```
+Question 5 (b):\
+```{r}
+boot.fun <- function(data, index){
+  def.glm <- glm(default~balance+income,
+               data = data[index,],
+               family = "binomial")
+  return(coef(def.glm))
+}
+```
+Question 5 (c):\
+```{r}
+boot.out <- boot(data = Default, statistic = boot.fun, R = 1000)
+boot.out
+```
+Question 5 (d):\
+The standard error for both methods are almost the same\
+Question 6 (a):\
+```{r}
+library(MASS)
+mu <- mean(Boston$medv)
+print(mu)
+```
+Question 6 (b):\
+```{r}
+n <- nrow(Boston)
+SE <- sd(Boston$medv)/sqrt(n)
+print(SE)
+```
+The standard error for mu is 0.4088611\
+Question 6 (c):\
+```{r}
+boot.mu <- function(data, index){
+  mu <- mean(data[index])
+  return (mu)
+}
+boot.SE<-boot(Boston$medv,boot.mu, R=1000)
+boot.SE
+```
+The standard error has increased from part b\
+Question 6 (d):\
+```{r}
+#estimate 95% conf interval
+conf.int <- c(22.53281-2*0.414028,22.53281+2*0.414028)
+conf.int
+t.test(Boston$medv)
+```
+The bootstrap estimate confidence interval is almost the same as the t.test confidence interval\
+Question 6 (e):\
+```{r}
+median(Boston$medv)
+```
+Question 6 (f):\
+```{r}
+boot.med <- function(data, index){
+  med <- median(data[index])
+  return (med)
+}
+boot.medSE <- boot(Boston$medv,boot.med, R=1000)
+boot.medSE
+```
+The median value is the same from before\
+The standard error of the median is 0.3707169\
+Question 6 (g):\
+```{r}
+quantile(Boston$medv, probs = .1)
+```
+Question 6 (h):\
+```{r}
+boot.quan <- function(data,index){
+  q <- quantile(data[index], probs = 0.1)
+  return (q)
+}
+boot.qSE <- boot(Boston$medv, boot.quan, R=1000)
+boot.qSE
+```
+
+The tenth percentile is the same value from before\
+The standard error for tenth percentile is  0.4888113\

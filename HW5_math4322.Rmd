@@ -1,0 +1,190 @@
+---
+title: "HW5-MATH4322"
+author: "Anthony Castillo-ID:1670011"
+date: "2022-11-04"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Question 1 (a):\
+
+
+
+Question 1 (b):\
+
+Question 2:\
+```{r}
+x <- c(0.1,0.15,0.2,0.2,0.55,0.6,0.6,0.65,0.7,0.75)
+mean(x)
+```
+The majority vote approach will have the final classification be Red because there are six values greater than 0.5 making them red and only 4 values less than 0.5 making them green\
+The average probability approach will have the final classification of Green since the average is less than 0.5\
+Question 3:\
+1. use recursive binary splitting to grow tree on the training data\
+2. apply pruning to the tree to obtain the best sequence of best subtrees\
+3. use k-fold cross validation to prune the tree\
+4. average the results for each value and choose the best value\
+5. return subtree from step 2 that corresponds to chosen value\
+Question 4 (a):\
+```{r}
+library(ISLR2)
+n <- nrow(OJ)
+Train <- sample(1:n,800)
+oj.train <- OJ[Train,]
+oj.test <- OJ[-Train,]
+```
+Question 4 (b):\
+```{r}
+library(tree)
+oj.tree <- tree(Purchase~., data = oj.train)
+summary(oj.tree)
+```
+The training error rate is 0.1962 and it has 8 terminal nodes\
+Question 4 (c):\
+```{r}
+oj.tree
+```
+Terminal Node 22 has a split of LoyalCH < 0.277977 and the deviance is 58.63 and is predicted for value MM which has a probability of 71% of being value MM and 29% of being value CH\
+Question 4 (d):\
+```{r}
+plot(oj.tree)
+text(oj.tree)
+```
+The value CH has a higher chance of being predicted the value MM\
+Question 4 (e):\
+```{r}
+oj.pred <- predict(oj.tree,newdata = oj.test, type = "class")
+table(pred=oj.pred,true=oj.test$Purchase)
+#test error rate
+mean(oj.pred != oj.test$Purchase)
+```
+
+Question 4 (f):\
+```{r}
+set.seed(10)
+oj.cv <- cv.tree(oj.tree)
+oj.cv
+```
+Question 4 (g):\
+```{r}
+plot(oj.cv$size,oj.cv$dev,type="b")
+```
+
+Question 4 (h):\
+The lowest cross-validated classification error rate is for tree size = 7\
+Question 4 (i):\
+```{r}
+oj.prune <- prune.tree(oj.tree, best = 7)
+plot(oj.prune)
+text(oj.prune)
+```
+
+Question 4 (j):\
+```{r}
+summary(oj.prune)
+summary(oj.tree)
+```
+The pruned tree has a higher training error rate\
+Question 4 (k):\
+```{r}
+oj.prune.pred <- predict(oj.prune, newdata = oj.test, type="class")
+table(pred=oj.prune.pred,true=oj.test$Purchase)
+#pruned tree test error rate
+mean(oj.prune.pred != oj.test$Purchase)
+```
+The pruned tree has a higher test error rate\
+Question 5 (a):\
+```{r}
+library(ISLR)
+n <- nrow(Carseats)
+Train <- sample(1:n,0.70*n)
+carseats.train <- Carseats[Train,]
+carseats.test <- Carseats[-Train,]
+```
+Question 5 (b):\
+```{r}
+library(tree)
+carseats.tree <- tree(Sales~., data = carseats.train)
+plot(carseats.tree)
+text(carseats.tree, pretty = 0)
+summary(carseats.tree)
+```
+```{r}
+#MSE
+carseats.pred <- predict(carseats.tree, newdata = carseats.test)
+mean((carseats.pred-carseats.test$Sales)^2)
+```
+Question 5 (c):\
+```{r}
+set.seed(11)
+cv.carseat <- cv.tree(carseats.tree)
+plot(cv.carseat$size,cv.carseat$dev, type="b")
+prune.carseat <- prune.tree(carseats.tree,best = 15)
+carseat.pred.pruned <- predict(prune.carseat, newdata = carseats.test)
+mean((carseat.pred.pruned-carseats.test$Sales)^2)
+```
+Yes pruning the tree improved the test MSE\
+Question 5 (d):\
+```{r}
+library(randomForest)
+set.seed(10)
+car.bag <- randomForest(Sales~., data = carseats.train,mtry = ncol(Carseats)-1, importance = TRUE)
+car.bag
+
+#test MSE
+car.bagpred <- predict(car.bag ,newdata = carseats.test)
+mean((car.bagpred-carseats.test$Sales)^2)
+
+importance(car.bag)
+varImpPlot(car.bag)
+```
+
+Price and ShelveLoc are the most important variables\
+Question 5 (e):\
+```{r}
+for(i in c(1,3,5)){
+  set.seed(10)
+  car.bag <- randomForest(Sales~., data = carseats.train,
+                          mtry = i,
+                          importance = TRUE)
+  #print(importance(car.bag))
+  varImpPlot(car.bag)
+  
+  car.bagpred <- predict(car.bag ,newdata = carseats.test)
+  print(mean((car.bagpred-carseats.test$Sales)^2))
+}
+```
+Price and ShelveLoc stay the most important variable throughout all the m's\
+The effect of m as it is increased the MSE test error decreases with each m\
+Question 6 (a):\
+```{r}
+library(ISLR2)
+Train <- sample(1:1000)
+Caravan$Purchase = ifelse(Caravan$Purchase == "Yes", 1, 0)
+caravan.train <- Caravan[Train,]
+caravan.test <- Caravan[-Train,]
+```
+Question 6 (b):\
+```{r}
+library(gbm)
+set.seed(1)
+caravan.boost <- gbm(Purchase~., data = caravan.train,
+                     distribution ="gaussian",
+                     n.tree = 1000,
+                     shrinkage = 0.01,)
+summary(caravan.boost)
+```
+Question 6 (c):\
+```{r}
+set.seed(10)
+pred.carboost <- predict(caravan.boost,
+                         newdata = caravan.test,
+                         n.trees = 1000)
+greater20 <- ifelse(pred.carboost > .20,1,0)
+table(pred = greater20,true= caravan.test$Purchase)
+#predicted to make purchase and in fact make one
+print(10/(10+279))
+```

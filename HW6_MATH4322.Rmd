@@ -1,0 +1,95 @@
+---
+title: "HW6_MATH4322"
+author: "anthonycastillo ID:1670011"
+date: "2022-11-16"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Question 1 (a):\
+
+Question 1 (b):\
+
+Question 1 (c):\
+
+Question 2 (a):\
+
+Question 2 (b):\
+```{r}
+y_hat <-0.14+0.2*4-0.54*-3-0.21*7-0.1*5+0.33*-1
+```
+Question 3 (a):\
+
+Question 3 (b):\
+```{r}
+h1 <- -0.3+0.6*10-0.7*-5
+h2 <- 0.5-0.4*10-0.3*-5
+h3 <- 0.5+0.5*10+0.2*-5
+y <- 0.2-0.3*9.2+0.5*-2-0.7*4.5
+```
+Question 4 (a):\
+```{r}
+library(neuralnet)
+library(MASS)
+
+data <- Boston
+summary(data)
+```
+
+mean of variable age is 68.57\
+mean of variable ptratio is 18.46\
+Question 4 (b):\
+```{r}
+max_data = apply(data,2,max)
+min_data = apply(data,2,min)
+data_scaled <- scale(data, center = min_data,
+                      scale = max_data-min_data)
+head(data_scaled)
+```
+obs#1 medv = 0.4222222\
+
+Question 4 (c):\
+```{r}
+set.seed(10)
+index <- sample(1:nrow(data), round(0.7*nrow(data)))
+train_data <- as.data.frame(data_scaled[index,])
+test_data <- as.data.frame(data_scaled[-index,])
+dim(train_data)
+dim(test_data)
+```
+training set has 354 observations\
+
+Question 4 (d):\
+```{r}
+set.seed(1)
+net_data <- neuralnet(medv~.,
+                      data = train_data,
+                      hidden = 10,
+                      linear.output = TRUE)
+plot(net_data)
+
+predict_net <- predict(net_data,test_data)
+predict_net_start <- predict_net*(max(data$medv) - min(data$medv)) + min(data$medv)
+test_data_start <- test_data$medv*(max(data$medv) - min(data$medv)) + min(data$medv)
+#test MSE
+sum((predict_net_start - test_data_start)^2)/nrow(test_data)
+```
+
+Question 4 (e):\
+```{r}
+lm.boston <- lm(medv~.,
+                data = data,
+                subset = index)
+summary(lm.boston)
+train <- data[index,]
+test <- data[-index,]
+predict_lm <- predict(lm.boston,test)
+predict_lm_train <- predict(lm.boston,train)
+#test MSE
+sum((predict_lm - test$medv)^2)/nrow(test)
+#train MSE
+sum((predict_lm_train - train$medv)^2)/nrow(train)
+```
